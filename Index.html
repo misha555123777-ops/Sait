@@ -1,0 +1,952 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>NEBULA BROWSER GOOGLE EDITION</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  
+  *, *::before, *::after {
+    transition: background-color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, color 0.5s ease;
+  }
+
+  html, body {
+    width: 100%; height: 100%; overflow: hidden;
+    background: var(--bg-base, #0a0514);
+    user-select: none; -webkit-user-select: none;
+    font-family: var(--font-family, -apple-system, 'Segoe UI', Roboto, sans-serif); color: #fff;
+  }
+
+  :root {
+    --accent: #aa66ff;
+    --accent-light: #cc88ff;
+    --accent-dark: #8844ff;
+    --accent-glow: rgba(180, 100, 255, 0.6);
+    --bg-base: #0a0514;
+    --bg-panel: rgba(20, 10, 40, 0.75);
+    --bg-input: rgba(40, 20, 70, 0.7);
+    --text-primary: #e0d0ff;
+    --text-dim: rgba(200, 170, 255, 0.7);
+    --radius: 12px;
+    --blur-val: 20px;
+    --glow-mul: 1;
+    --font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  body[data-theme="blue"] {
+    --accent: #00d2ff; --accent-light: #80e5ff; --accent-dark: #0088cc;
+    --accent-glow: rgba(0, 210, 255, 0.6); --bg-base: #030f1e;
+    --bg-panel: rgba(10, 30, 60, 0.75); --bg-input: rgba(15, 45, 90, 0.7);
+    --text-primary: #d0f4ff; --text-dim: rgba(150, 220, 255, 0.7);
+  }
+  body[data-theme="red"] {
+    --accent: #ff2a6d; --accent-light: #ff759e; --accent-dark: #b3003b;
+    --accent-glow: rgba(255, 42, 109, 0.6); --bg-base: #18030a;
+    --bg-panel: rgba(50, 10, 25, 0.75); --bg-input: rgba(80, 15, 40, 0.7);
+    --text-primary: #ffd0de; --text-dim: rgba(255, 150, 180, 0.7);
+  }
+  body[data-theme="orange"] {
+    --accent: #ff8c00; --accent-light: #ffb347; --accent-dark: #cc7000;
+    --accent-glow: rgba(255, 140, 0, 0.6); --bg-base: #1a0b00;
+    --bg-panel: rgba(50, 25, 5, 0.75); --bg-input: rgba(80, 40, 10, 0.7);
+    --text-primary: #ffe8d0; --text-dim: rgba(255, 200, 150, 0.7);
+  }
+  body[data-theme="emerald"] {
+    --accent: #00ff87; --accent-light: #60ffb3; --accent-dark: #00b35e;
+    --accent-glow: rgba(0, 255, 135, 0.6); --bg-base: #01140b;
+    --bg-panel: rgba(5, 40, 25, 0.75); --bg-input: rgba(10, 65, 40, 0.7);
+    --text-primary: #d0ffe8; --text-dim: rgba(150, 255, 200, 0.7);
+  }
+  body[data-theme="cyberpunk"] {
+    --accent: #ffe600; --accent-light: #fff066; --accent-dark: #ccb800;
+    --accent-glow: rgba(255, 230, 0, 0.6); --bg-base: #12001a;
+    --bg-panel: rgba(40, 5, 55, 0.75); --bg-input: rgba(70, 10, 95, 0.7);
+    --text-primary: #fffde0; --text-dim: rgba(255, 250, 160, 0.7);
+  }
+  body[data-theme="synthwave"] {
+    --accent: #ff007f; --accent-light: #ff66b2; --accent-dark: #b30059;
+    --accent-glow: rgba(255, 0, 127, 0.6); --bg-base: #150022;
+    --bg-panel: rgba(45, 0, 65, 0.75); --bg-input: rgba(75, 0, 100, 0.7);
+    --text-primary: #ffd0f0; --text-dim: rgba(255, 160, 220, 0.7);
+  }
+  body[data-theme="oled"] {
+    --accent: #ffffff; --accent-light: #ffffff; --accent-dark: #888888;
+    --accent-glow: rgba(255, 255, 255, 0.3); --bg-base: #000000;
+    --bg-panel: rgba(15, 15, 15, 0.9); --bg-input: rgba(30, 30, 30, 0.9);
+    --text-primary: #ffffff; --text-dim: rgba(200, 200, 200, 0.7);
+  }
+  body[data-theme="nordic"] {
+    --accent: #5e81ac; --accent-light: #81a1c1; --accent-dark: #4c566a;
+    --accent-glow: rgba(129, 161, 193, 0.5); --bg-base: #2e3440;
+    --bg-panel: rgba(43, 48, 59, 0.8); --bg-input: rgba(59, 66, 82, 0.8);
+    --text-primary: #eceff4; --text-dim: rgba(216, 222, 233, 0.7);
+  }
+  body[data-theme="matrix"] {
+    --accent: #00ff41; --accent-light: #66ff8c; --accent-dark: #00b32d;
+    --accent-glow: rgba(0, 255, 65, 0.6); --bg-base: #020d04;
+    --bg-panel: rgba(5, 30, 10, 0.8); --bg-input: rgba(10, 50, 20, 0.8);
+    --text-primary: #d0ffd9; --text-dim: rgba(150, 255, 170, 0.7);
+  }
+
+  body.no-glow { --glow-mul: 0 !important; }
+
+  #splashScreen {
+    position: fixed; inset: 0; z-index: 999;
+    background: #0a0514; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s;
+  }
+  #splashLogo {
+    font-size: 40px; font-weight: 900; letter-spacing: 10px;
+    background: linear-gradient(90deg, #cc88ff, #8844ff);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  #splashProgress {
+    width: 160px; height: 3px; background: rgba(255,255,255,0.1);
+    margin-top: 20px; border-radius: 3px; overflow: hidden;
+  }
+  #splashBar {
+    width: 0%; height: 100%; background: #aa66ff;
+    transition: width 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  #bgCanvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
+
+  #app {
+    position: relative; z-index: 1;
+    width: 100%; height: 100%;
+    display: flex; flex-direction: column;
+  }
+
+  #topBar {
+    padding: 8px 12px;
+    padding-top: max(8px, env(safe-area-inset-top));
+    background: var(--bg-panel);
+    backdrop-filter: blur(var(--blur-val));
+    -webkit-backdrop-filter: blur(var(--blur-val));
+    border-bottom: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    display: flex; flex-direction: column; gap: 8px;
+    box-shadow: 0 4px 30px calc(var(--accent-glow) * var(--glow-mul));
+  }
+  #topBar.incognito { background: rgba(50, 20, 90, 0.9); }
+
+  #tabsBar {
+    display: flex; gap: 6px;
+    overflow-x: auto; overflow-y: hidden;
+    padding-bottom: 4px; scrollbar-width: none;
+  }
+  #tabsBar::-webkit-scrollbar { display: none; }
+
+  .tab {
+    display: flex; align-items: center; gap: 6px;
+    padding: 6px 12px;
+    background: var(--bg-input);
+    border: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    border-radius: var(--radius);
+    min-width: 120px; max-width: 180px;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .tab:active { transform: scale(0.94); }
+  .tab.active {
+    background: var(--accent-glow);
+    border-color: var(--accent);
+    box-shadow: 0 0 calc(15px * var(--glow-mul)) var(--accent-glow);
+  }
+  .tabTitle {
+    flex: 1; font-size: 11px; font-weight: 500;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    color: var(--text-primary);
+  }
+  .tabClose {
+    width: 18px; height: 18px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; background: rgba(255,255,255,0.15); flex-shrink: 0;
+  }
+
+  #newTabBtn {
+    width: 32px; height: 32px;
+    background: var(--bg-input);
+    border: 1px solid var(--accent);
+    border-radius: var(--radius);
+    color: #fff; font-size: 18px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer;
+  }
+  #newTabBtn:active { transform: scale(0.85); background: var(--accent); }
+
+  #navRow { display: flex; align-items: center; gap: 6px; }
+  .navBtn {
+    width: 36px; height: 36px;
+    background: var(--bg-input);
+    border: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    border-radius: var(--radius);
+    color: var(--text-primary); font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; cursor: pointer;
+  }
+  .navBtn:active { transform: scale(0.88); background: var(--accent-glow); }
+
+  #urlWrapper { flex: 1; position: relative; }
+  #urlInput {
+    width: 100%; height: 36px;
+    padding: 0 38px 0 38px;
+    background: var(--bg-input);
+    border: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    border-radius: var(--radius);
+    color: #fff; font-size: 13px; outline: none;
+  }
+  #urlWrapper.focused #urlInput {
+    height: 42px; border-color: var(--accent);
+    background: var(--bg-panel); font-size: 14px;
+    box-shadow: 0 0 calc(25px * var(--glow-mul)) var(--accent-glow);
+  }
+  #urlInput::placeholder { color: var(--text-dim); }
+
+  #urlIconLeft, #urlIconRight {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 15px; color: var(--text-dim); pointer-events: none;
+  }
+  #urlIconLeft { left: 12px; }
+  #urlIconRight { right: 12px; pointer-events: auto; cursor: pointer; }
+
+  #contentArea { flex: 1; position: relative; overflow: hidden; }
+
+  #homeScreen {
+    position: absolute; inset: 0;
+    overflow-y: auto; padding: 20px 16px;
+    display: flex; flex-direction: column; align-items: center;
+    scrollbar-width: none; animation: fadeIn 0.4s ease-out;
+  }
+  #homeScreen::-webkit-scrollbar { display: none; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: scale(1); } }
+
+  #clock {
+    font-size: 64px; font-weight: 200; letter-spacing: 4px;
+    color: var(--text-primary);
+    text-shadow: 0 0 calc(30px * var(--glow-mul)) var(--accent-glow);
+    margin-top: 10px; margin-bottom: 2px;
+  }
+  #dateLabel {
+    font-size: 12px; color: var(--text-dim); letter-spacing: 2px;
+    margin-bottom: 20px; text-transform: uppercase; font-weight: 600;
+  }
+
+  #logo {
+    font-size: 32px; font-weight: 900; letter-spacing: 8px;
+    background: linear-gradient(90deg, var(--accent-light), var(--accent-dark), var(--accent-light));
+    background-size: 200% 100%;
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    animation: logoFlow 4s linear infinite; margin-bottom: 2px;
+  }
+  @keyframes logoFlow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  #subtitle { font-size: 10px; letter-spacing: 4px; color: var(--text-dim); margin-bottom: 20px; font-weight: 700; }
+
+  /* Google CSE Стилизация */
+  #searchWrapper {
+    width: 100%; max-width: 520px;
+    margin-bottom: 20px; padding: 6px;
+    background: var(--bg-panel);
+    border: 1px solid var(--accent-glow);
+    border-radius: var(--radius);
+    backdrop-filter: blur(var(--blur-val));
+    box-shadow: 0 0 calc(25px * var(--glow-mul)) var(--accent-glow);
+  }
+  .gcse-search { min-height: 40px; }
+  .gsc-control-cse {
+    background: transparent !important;
+    border: none !important;
+  }
+
+  #quickLinks {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;
+    width: 100%; max-width: 440px; margin-bottom: 30px;
+  }
+  .quickLink {
+    aspect-ratio: 1; background: var(--bg-panel);
+    border: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    border-radius: var(--radius);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 8px; cursor: pointer;
+    backdrop-filter: blur(var(--blur-val));
+  }
+  .quickLink:active {
+    transform: scale(0.9); background: var(--accent-glow);
+    box-shadow: 0 0 calc(25px * var(--glow-mul)) var(--accent-glow);
+  }
+  .quickLink .icon { font-size: 32px; filter: drop-shadow(0 0 8px var(--accent-glow)); }
+  .quickLink .label { font-size: 11px; color: var(--text-primary); font-weight: 600; }
+
+  #browserFrame {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    border: none; background: #fff; display: none; animation: fadeIn 0.3s;
+  }
+  #browserFrame.visible { display: block; }
+
+  #infoMessage {
+    position: absolute; inset: 0; display: none; flex-direction: column;
+    align-items: center; justify-content: center; padding: 30px; text-align: center;
+    background: var(--bg-base); animation: fadeIn 0.3s;
+  }
+  #infoMessage.visible { display: flex; }
+  #infoMessage .infoIcon { font-size: 56px; margin-bottom: 16px; filter: drop-shadow(0 0 20px var(--accent-glow)); }
+  #infoMessage h2 { font-size: 20px; color: var(--accent-light); margin-bottom: 12px; }
+  #infoMessage p { font-size: 13px; color: var(--text-dim); line-height: 1.6; max-width: 340px; margin-bottom: 20px; }
+  #infoMessage button {
+    padding: 12px 28px; background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    border: 1px solid var(--accent-light); border-radius: var(--radius);
+    color: #fff; font-size: 13px; font-weight: 700; letter-spacing: 1px;
+    box-shadow: 0 0 calc(20px * var(--glow-mul)) var(--accent-glow); cursor: pointer;
+  }
+  #infoMessage button:active { transform: scale(0.95); }
+
+  #incognitoBadge {
+    position: fixed; top: 60px; left: 50%;
+    transform: translateX(-50%) translateY(-20px);
+    background: var(--accent); border: 1px solid var(--accent-light);
+    padding: 6px 16px; border-radius: 20px; font-size: 11px; letter-spacing: 2px;
+    color: #fff; box-shadow: 0 0 calc(30px * var(--glow-mul)) var(--accent-glow);
+    opacity: 0; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    pointer-events: none; z-index: 100; font-weight: bold;
+  }
+  #incognitoBadge.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  #bottomBar {
+    display: flex; justify-content: space-around; padding: 8px 0;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    background: var(--bg-panel); backdrop-filter: blur(var(--blur-val));
+    border-top: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    box-shadow: 0 -4px 30px calc(var(--accent-glow) * var(--glow-mul));
+  }
+  .bottomBtn {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 2px; padding: 6px; color: var(--text-dim); font-size: 9px; letter-spacing: 1px;
+    cursor: pointer; font-weight: 700;
+  }
+  .bottomBtn .bottomIcon { font-size: 20px; }
+  .bottomBtn:active { transform: scale(0.9); }
+  .bottomBtn.active { color: var(--accent-light); }
+  .bottomBtn.active .bottomIcon { transform: scale(1.15); filter: drop-shadow(0 0 8px var(--accent)); }
+
+  #menuOverlay {
+    position: fixed; inset: 0; background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(15px); z-index: 90; display: none;
+    flex-direction: column; justify-content: flex-end; padding: 16px;
+  }
+  #menuOverlay.visible { display: flex; }
+  #menuContent {
+    background: var(--bg-panel); border: 1px solid var(--accent);
+    border-radius: calc(var(--radius) * 1.5); padding: 18px;
+    box-shadow: 0 0 calc(40px * var(--glow-mul)) var(--accent-glow);
+    max-height: 85vh; overflow-y: auto; scrollbar-width: none;
+  }
+  #menuContent::-webkit-scrollbar { display: none; }
+
+  .menuTabsHeader { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--accent-glow); padding-bottom: 10px; }
+  .menuTabBtn {
+    flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: bold;
+    color: var(--text-dim); border-radius: var(--radius); cursor: pointer;
+  }
+  .menuTabBtn.active { background: var(--accent-glow); color: #fff; }
+
+  .menuPage { display: none; }
+  .menuPage.active { display: block; }
+
+  .menuSection { font-size: 10px; letter-spacing: 2px; color: var(--text-dim); padding: 8px 4px 6px; text-transform: uppercase; font-weight: 800; }
+  
+  .menuItem {
+    padding: 12px; display: flex; align-items: center; gap: 12px;
+    border-radius: var(--radius); cursor: pointer; font-size: 13px; font-weight: 600;
+    color: var(--text-primary); margin-bottom: 4px;
+  }
+  .menuItem:active { background: var(--accent-glow); }
+  .menuItem .menuIcon { font-size: 20px; width: 26px; text-align: center; }
+  .menuItem.active { background: var(--accent-glow); }
+  .menuItem .check { margin-left: auto; color: var(--accent-light); font-weight: bold; opacity: 0; }
+  .menuItem.active .check { opacity: 1; }
+
+  .themeGrid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; padding: 6px 0; }
+  .themeDot { aspect-ratio: 1; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+  .themeDot.active { border-color: #fff; box-shadow: 0 0 15px var(--accent); transform: scale(1.15); }
+
+  .themeDot.purple { background: linear-gradient(135deg, #cc88ff, #6622cc); }
+  .themeDot.blue { background: linear-gradient(135deg, #88ccff, #0088cc); }
+  .themeDot.red { background: linear-gradient(135deg, #ff759e, #b3003b); }
+  .themeDot.orange { background: linear-gradient(135deg, #ffb347, #cc7000); }
+  .themeDot.emerald { background: linear-gradient(135deg, #60ffb3, #00b35e); }
+  .themeDot.cyberpunk { background: linear-gradient(135deg, #fff066, #ccb800); }
+  .themeDot.synthwave { background: linear-gradient(135deg, #ff66b2, #b30059); }
+  .themeDot.oled { background: linear-gradient(135deg, #ffffff, #222222); }
+  .themeDot.nordic { background: linear-gradient(135deg, #81a1c1, #2e3440); }
+  .themeDot.matrix { background: linear-gradient(135deg, #66ff8c, #005511); }
+
+  .settingControl { padding: 10px; display: flex; flex-direction: column; gap: 8px; background: rgba(0,0,0,0.2); border-radius: var(--radius); margin-bottom: 8px; }
+  .settingRow { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 600; }
+  .settingControl select { background: var(--bg-input); color: #fff; border: 1px solid var(--accent-glow); padding: 6px; border-radius: var(--radius); outline: none; }
+  .settingControl input[type="range"] { width: 100%; accent-color: var(--accent); }
+
+  .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .slider { position: absolute; inset: 0; background: #444; border-radius: 24px; cursor: pointer; }
+  .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; }
+  input:checked + .slider { background: var(--accent); }
+  input:checked + .slider:before { transform: translateX(20px); }
+
+  .statsBox { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 6px; }
+  .statCard { background: rgba(0,0,0,0.3); padding: 10px; border-radius: var(--radius); text-align: center; }
+  .statVal { font-size: 18px; font-weight: 800; color: var(--accent-light); }
+  .statLbl { font-size: 9px; color: var(--text-dim); letter-spacing: 1px; }
+
+  #speedIndicator {
+    position: fixed; top: 8px; right: 8px; padding: 4px 10px;
+    background: var(--bg-panel); border: 1px solid calc(var(--accent-glow) * var(--glow-mul));
+    border-radius: 12px; font-size: 10px; font-weight: bold; color: var(--text-dim);
+    z-index: 200; pointer-events: none; backdrop-filter: blur(10px);
+  }
+</style>
+</head>
+<body data-theme="purple" data-anim="particles">
+
+<div id="splashScreen">
+  <div id="splashLogo">NEBULA</div>
+  <div id="splashProgress"><div id="splashBar"></div></div>
+</div>
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="speedIndicator">📶 --</div>
+<div id="incognitoBadge">🕵️ ИНКОГНИТО</div>
+
+<div id="app">
+  <div id="topBar">
+    <div id="tabsBar">
+      <div id="newTabBtn" onclick="newTab()">+</div>
+    </div>
+    <div id="navRow">
+      <div class="navBtn" onclick="goBack()">←</div>
+      <div class="navBtn" onclick="goForward()">→</div>
+      <div id="urlWrapper">
+        <span id="urlIconLeft">🔍</span>
+        <input type="text" id="urlInput" placeholder="Поиск или адрес сайта..."
+               onkeydown="if(event.key==='Enter')loadFromInput()"
+               onfocus="onUrlFocus()" onblur="onUrlBlur()">
+        <span id="urlIconRight" onclick="clearInput()">✕</span>
+      </div>
+      <div class="navBtn" onclick="reloadPage()">↻</div>
+    </div>
+  </div>
+
+  <div id="contentArea">
+    <div id="homeScreen">
+      <div id="clock">--:--</div>
+      <div id="dateLabel">ЗАГРУЗКА...</div>
+      <div id="logo">NEBULA</div>
+      <div id="subtitle">BROWSER GOOGLE CSE EDITION</div>
+
+      <!-- Встроенный Google CSE из первой версии -->
+      <div id="searchWrapper">
+        <div class="gcse-search"></div>
+      </div>
+
+      <div id="quickLinks">
+        <div class="quickLink" onclick="openSite('wikipedia')">
+          <div class="icon">📚</div><div class="label">Wikipedia</div>
+        </div>
+        <div class="quickLink" onclick="openSite('minecraft')">
+          <div class="icon">🎮</div><div class="label">Minecraft</div>
+        </div>
+        <div class="quickLink" onclick="openSite('youtube')">
+          <div class="icon">▶️</div><div class="label">YouTube</div>
+        </div>
+        <div class="quickLink" onclick="openSite('github')">
+          <div class="icon">🐙</div><div class="label">GitHub</div>
+        </div>
+        <div class="quickLink" onclick="openSite('reddit')">
+          <div class="icon">👽</div><div class="label">Reddit</div>
+        </div>
+        <div class="quickLink" onclick="openSite('about')">
+          <div class="icon">ℹ️</div><div class="label">О нас</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="infoMessage">
+      <div class="infoIcon">🔒</div>
+      <h2 id="infoTitle">Сайт заблокировал показ</h2>
+      <p id="infoText">Этот сайт запрещает встраивание внутри фрейма.</p>
+      <button onclick="openInNewWindow()">ОТКРЫТЬ ВНЕШНЕ</button>
+    </div>
+
+    <iframe id="browserFrame" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" referrerpolicy="no-referrer"></iframe>
+  </div>
+
+  <div id="bottomBar">
+    <div class="bottomBtn active" onclick="goHome()">
+      <div class="bottomIcon">🏠</div><div>ДОМОЙ</div>
+    </div>
+    <div class="bottomBtn" id="incognitoBtn" onclick="toggleIncognito()">
+      <div class="bottomIcon">🕵️</div><div>ИНКОГНИТО</div>
+    </div>
+    <div class="bottomBtn" onclick="clearAll()">
+      <div class="bottomIcon">🗑️</div><div>ОЧИСТИТЬ</div>
+    </div>
+    <div class="bottomBtn" onclick="showMenu()">
+      <div class="bottomIcon">⚙️</div><div>МЕНЮ</div>
+    </div>
+  </div>
+</div>
+
+<div id="menuOverlay" onclick="if(event.target===this)hideMenu()">
+  <div id="menuContent">
+    <div class="menuTabsHeader">
+      <div class="menuTabBtn active" onclick="switchMenuTab('themes')">🎨 Темы</div>
+      <div class="menuTabBtn" onclick="switchMenuTab('fx')">✨ Эффекты</div>
+      <div class="menuTabBtn" onclick="switchMenuTab('custom')">⚙️ Опции</div>
+    </div>
+
+    <div class="menuPage active" id="menuPage-themes">
+      <div class="menuSection">Палитра оформления (10 тем)</div>
+      <div class="themeGrid">
+        <div class="themeDot purple active" data-theme="purple" onclick="setTheme('purple')"></div>
+        <div class="themeDot blue" data-theme="blue" onclick="setTheme('blue')"></div>
+        <div class="themeDot red" data-theme="red" onclick="setTheme('red')"></div>
+        <div class="themeDot orange" data-theme="orange" onclick="setTheme('orange')"></div>
+        <div class="themeDot emerald" data-theme="emerald" onclick="setTheme('emerald')"></div>
+        <div class="themeDot cyberpunk" data-theme="cyberpunk" onclick="setTheme('cyberpunk')"></div>
+        <div class="themeDot synthwave" data-theme="synthwave" onclick="setTheme('synthwave')"></div>
+        <div class="themeDot oled" data-theme="oled" onclick="setTheme('oled')"></div>
+        <div class="themeDot nordic" data-theme="nordic" onclick="setTheme('nordic')"></div>
+        <div class="themeDot matrix" data-theme="matrix" onclick="setTheme('matrix')"></div>
+      </div>
+    </div>
+
+    <div class="menuPage" id="menuPage-fx">
+      <div class="menuSection">Анимации заднего плана</div>
+      <div class="menuItem" id="anim-particles" onclick="setAnim('particles')">
+        <div class="menuIcon">🔮</div><div>Неоновые Частицы</div><div class="check">✓</div>
+      </div>
+      <div class="menuItem" id="anim-nebula" onclick="setAnim('nebula')">
+        <div class="menuIcon">🌌</div><div>Космическая Туманность</div><div class="check">✓</div>
+      </div>
+      <div class="menuItem" id="anim-stars" onclick="setAnim('stars')">
+        <div class="menuIcon">⭐</div><div>Мерцающие Звёзды</div><div class="check">✓</div>
+      </div>
+      <div class="menuItem" id="anim-matrix" onclick="setAnim('matrix')">
+        <div class="menuIcon">💻</div><div>Цифровой Дождь</div><div class="check">✓</div>
+      </div>
+      <div class="menuItem" id="anim-grid" onclick="setAnim('grid')">
+        <div class="menuIcon">🌐</div><div>Синтвейв 3D-Сетка</div><div class="check">✓</div>
+      </div>
+      <div class="menuItem" id="anim-waves" onclick="setAnim('waves')">
+        <div class="menuIcon">🌊</div><div>Энергетические Волны</div><div class="check">✓</div>
+      </div>
+    </div>
+
+    <div class="menuPage" id="menuPage-custom">
+      <div class="menuSection">Кастомизация интерфейса</div>
+      <div class="settingControl">
+        <div class="settingRow"><span>Шрифт интерфейса</span></div>
+        <select id="fontSelect" onchange="changeFont(this.value)">
+          <option value="-apple-system, 'Segoe UI', Roboto, sans-serif">Стандартный (Clean)</option>
+          <option value="'Courier New', Courier, monospace">Терминал (Monospace)</option>
+          <option value="Georgia, serif">Элегантный (Serif)</option>
+        </select>
+      </div>
+
+      <div class="settingControl">
+        <div class="settingRow">
+          <span>Неоновое Свечение (Glow)</span>
+          <label class="switch">
+            <input type="checkbox" id="glowToggle" checked onchange="toggleGlow(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settingControl">
+        <div class="settingRow">
+          <span>Звуковые эффекты (SFX)</span>
+          <label class="switch">
+            <input type="checkbox" id="sfxToggle" checked onchange="toggleSFX(this.checked)">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+
+      <div class="settingControl">
+        <div class="settingRow">
+          <span>Закругление углов (Radius)</span>
+          <span id="radiusVal">12px</span>
+        </div>
+        <input type="range" min="0" max="24" value="12" oninput="changeRadius(this.value)">
+      </div>
+
+      <div class="menuSection" style="margin-top:6px;">Статистика</div>
+      <div class="statsBox">
+        <div class="statCard"><div class="statVal" id="statTabsCount">1</div><div class="statLbl">ОТКРЫТО ВКЛАДОК</div></div>
+        <div class="statCard"><div class="statVal" id="statTimeCount">0m</div><div class="statLbl">ВРЕМЯ СЕССИИ</div></div>
+      </div>
+
+      <div class="menuSection" style="margin-top:10px;">Действия</div>
+      <div class="menuItem" onclick="shareApp()">
+        <div class="menuIcon">🔗</div><div>Поделиться ссылкой</div>
+      </div>
+      <div class="menuItem danger" onclick="clearAll();hideMenu()">
+        <div class="menuIcon">🗑️</div><div>Сбросить все вкладки</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Скрипт Google CSE от первой версии -->
+<script async src="https://cse.google.com/cse.js?cx=d6a398f31faaf4cb8"></script>
+
+<script>
+const state = {
+  tabs: [],
+  activeTab: 0,
+  incognito: false,
+  theme: 'purple',
+  anim: 'particles',
+  glow: true,
+  sfx: true,
+  radius: 12,
+  blur: 20,
+  font: '-apple-system, "Segoe UI", Roboto, sans-serif',
+  totalTabsOpened: 0,
+  startTime: Date.now()
+};
+
+window.addEventListener('load', () => {
+  document.getElementById('splashBar').style.width = '100%';
+  setTimeout(() => {
+    const s = document.getElementById('splashScreen');
+    s.style.opacity = '0';
+    s.style.visibility = 'hidden';
+    playSFX(800, 'sine', 0.2);
+  }, 1200);
+});
+
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSFX(freq = 440, type = 'sine', duration = 0.05) {
+  if (!state.sfx) return;
+  try {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.start(); osc.stop(audioCtx.currentTime + duration);
+  } catch(e) {}
+}
+
+try {
+  const saved = localStorage.getItem('nebula_cse_settings');
+  if (saved) {
+    Object.assign(state, JSON.parse(saved));
+    applyLoadedSettings();
+  }
+} catch(e) {}
+
+function saveSettings() {
+  try { localStorage.setItem('nebula_cse_settings', JSON.stringify(state)); } catch(e) {}
+}
+
+function applyLoadedSettings() {
+  document.body.dataset.theme = state.theme;
+  document.body.dataset.anim = state.anim;
+  toggleGlow(state.glow);
+  changeRadius(state.radius);
+  changeFont(state.font);
+  document.getElementById('glowToggle').checked = state.glow;
+  document.getElementById('sfxToggle').checked = state.sfx;
+  document.getElementById('fontSelect').value = state.font;
+}
+
+const bgCanvas = document.getElementById('bgCanvas');
+const bgCtx = bgCanvas.getContext('2d');
+let bgW = 0, bgH = 0;
+
+function resizeBg() {
+  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  bgW = window.innerWidth; bgH = window.innerHeight;
+  bgCanvas.width = bgW * dpr; bgCanvas.height = bgH * dpr;
+  bgCanvas.style.width = bgW + 'px'; bgCanvas.style.height = bgH + 'px';
+  bgCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener('resize', resizeBg);
+resizeBg();
+
+const particles = [], nebulas = [], stars = [], matrixDrops = [];
+function initBg() {
+  particles.length = nebulas.length = stars.length = matrixDrops.length = 0;
+  for (let i = 0; i < 70; i++) particles.push({ x: Math.random() * bgW, y: Math.random() * bgH, vx: (Math.random() - 0.5) * 0.4, vy: (Math.random() - 0.5) * 0.4, size: 1 + Math.random() * 2.5, pulse: Math.random() * 6 });
+  for (let i = 0; i < 4; i++) nebulas.push({ x: Math.random() * bgW, y: Math.random() * bgH, r: 180 + Math.random() * 200, phase: Math.random() * 6, speed: 0.001 });
+  for (let i = 0; i < 100; i++) stars.push({ x: Math.random() * bgW, y: Math.random() * bgH, size: Math.random() * 1.5, tw: Math.random() * 6 });
+  const cols = Math.floor(bgW / 20);
+  for (let i = 0; i < cols; i++) matrixDrops.push({ x: i * 20, y: Math.random() * bgH, speed: 2 + Math.random() * 3 });
+}
+initBg();
+
+function getAccent() {
+  const s = getComputedStyle(document.body);
+  return { accent: s.getPropertyValue('--accent').trim() || '#aa66ff', base: s.getPropertyValue('--bg-base').trim() || '#0a0514' };
+}
+
+let gridOffset = 0;
+function drawBg(t) {
+  const time = t * 0.001;
+  const col = getAccent();
+  bgCtx.fillStyle = col.base; bgCtx.fillRect(0, 0, bgW, bgH);
+
+  const anim = state.anim;
+  if (anim === 'matrix') {
+    bgCtx.font = '12px monospace'; bgCtx.fillStyle = col.accent;
+    matrixDrops.forEach(d => {
+      d.y += d.speed; if (d.y > bgH) d.y = -10;
+      bgCtx.globalAlpha = 0.5;
+      bgCtx.fillText(String.fromCharCode(0x30A0 + Math.floor(Math.random() * 96)), d.x, d.y);
+    });
+    bgCtx.globalAlpha = 1;
+  } else if (anim === 'grid') {
+    gridOffset = (gridOffset + 0.8) % 30;
+    bgCtx.strokeStyle = col.accent; bgCtx.globalAlpha = 0.25; bgCtx.lineWidth = 1;
+    for (let x = 0; x < bgW; x += 40) { bgCtx.beginPath(); bgCtx.moveTo(x, 0); bgCtx.lineTo(x, bgH); bgCtx.stroke(); }
+    for (let y = gridOffset; y < bgH; y += 30) { bgCtx.beginPath(); bgCtx.moveTo(0, y); bgCtx.lineTo(bgW, y); bgCtx.stroke(); }
+    bgCtx.globalAlpha = 1;
+  } else if (anim === 'waves') {
+    bgCtx.strokeStyle = col.accent; bgCtx.lineWidth = 2; bgCtx.globalAlpha = 0.2;
+    for (let i = 0; i < 3; i++) {
+      bgCtx.beginPath();
+      for (let x = 0; x < bgW; x += 10) {
+        const y = bgH / 2 + Math.sin(x * 0.008 + time * 2 + i) * 50 * Math.cos(time + i);
+        if (x === 0) bgCtx.moveTo(x, y); else bgCtx.lineTo(x, y);
+      }
+      bgCtx.stroke();
+    }
+    bgCtx.globalAlpha = 1;
+  } else if (anim === 'nebula') {
+    nebulas.forEach(n => {
+      const r = n.r * (0.8 + Math.sin(time * n.speed + n.phase) * 0.2);
+      const g = bgCtx.createRadialGradient(n.x, n.y, 0, n.x, n.y, r);
+      g.addColorStop(0, col.accent + '40'); g.addColorStop(1, 'transparent');
+      bgCtx.fillStyle = g; bgCtx.beginPath(); bgCtx.arc(n.x, n.y, r, 0, Math.PI * 2); bgCtx.fill();
+    });
+  } else if (anim === 'particles' || anim === 'stars') {
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = bgW; if (p.x > bgW) p.x = 0;
+      if (p.y < 0) p.y = bgH; if (p.y > bgH) p.y = 0;
+      bgCtx.globalAlpha = 0.4 + Math.sin(time * 2 + p.pulse) * 0.3;
+      bgCtx.fillStyle = col.accent; bgCtx.beginPath(); bgCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2); bgCtx.fill();
+    });
+    bgCtx.globalAlpha = 1;
+  }
+
+  requestAnimationFrame(drawBg);
+}
+requestAnimationFrame(drawBg);
+
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').textContent = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+  const days = ['ВОСКРЕСЕНЬЕ', 'ПОНЕДЕЛЬНИК', 'ВТОРНИК', 'СРЕДА', 'ЧЕТВЕРГ', 'ПЯТНИЦА', 'СУББОТА'];
+  const months = ['ЯНВАРЯ', 'ФЕВРАЛЯ', 'МАРТА', 'АПРЕЛЯ', 'МАЯ', 'ИЮНЯ', 'ИЮЛЯ', 'АВГУСТА', 'СЕНТЯБРЯ', 'ОКТЯБРЯ', 'НОЯБРЯ', 'ДЕКАБРЯ'];
+  document.getElementById('dateLabel').textContent = days[now.getDay()] + ', ' + now.getDate() + ' ' + months[now.getMonth()];
+  
+  const elapsedMins = Math.floor((Date.now() - state.startTime) / 60000);
+  document.getElementById('statTimeCount').textContent = elapsedMins + 'm';
+}
+setInterval(updateClock, 1000); updateClock();
+
+const SITES = {
+  wikipedia: { url: 'https://ru.m.wikipedia.org', title: 'Wikipedia', favicon: '📚' },
+  minecraft: { url: 'https://classic.minecraft.net', title: 'Minecraft Classic', favicon: '🎮' },
+  youtube: { url: 'https://www.youtube.com', title: 'YouTube', favicon: '▶️' },
+  github: { url: 'https://github.com', title: 'GitHub', favicon: '🐙' },
+  reddit: { url: 'https://www.reddit.com', title: 'Reddit', favicon: '👽' },
+  about: { url: 'about', title: 'О браузере', favicon: 'ℹ️', isAbout: true }
+};
+
+function newTab(siteKey) {
+  playSFX(700, 'sine', 0.06);
+  state.totalTabsOpened++;
+  document.getElementById('statTabsCount').textContent = state.totalTabsOpened;
+  const tab = {
+    url: siteKey && SITES[siteKey] ? SITES[siteKey].url : null,
+    title: siteKey && SITES[siteKey] ? SITES[siteKey].title : 'Новая вкладка',
+    favicon: siteKey && SITES[siteKey] ? SITES[siteKey].favicon : '🌐',
+    isHome: !siteKey, isAbout: siteKey === 'about'
+  };
+  state.tabs.push(tab);
+  state.activeTab = state.tabs.length - 1;
+  renderTabs(); renderContent();
+}
+
+function closeTab(i, e) {
+  if (e) e.stopPropagation();
+  playSFX(250, 'triangle', 0.05);
+  state.tabs.splice(i, 1);
+  if (state.tabs.length === 0) { newTab(); return; }
+  if (state.activeTab >= state.tabs.length) state.activeTab = state.tabs.length - 1;
+  renderTabs(); renderContent();
+}
+
+function switchTab(i) {
+  playSFX(500, 'sine', 0.03);
+  state.activeTab = i;
+  renderTabs(); renderContent();
+}
+
+function renderTabs() {
+  const bar = document.getElementById('tabsBar');
+  bar.innerHTML = '<div id="newTabBtn" onclick="newTab()">+</div>';
+  state.tabs.forEach((tab, i) => {
+    const el = document.createElement('div');
+    el.className = 'tab' + (i === state.activeTab ? ' active' : '');
+    el.onclick = () => switchTab(i);
+    el.innerHTML = `<span class="tabFavicon">${tab.favicon}</span><span class="tabTitle">${tab.title}</span><span class="tabClose" onclick="closeTab(${i}, event)">×</span>`;
+    bar.appendChild(el);
+  });
+}
+
+function renderContent() {
+  const tab = state.tabs[state.activeTab]; if (!tab) return;
+  const home = document.getElementById('homeScreen'), frame = document.getElementById('browserFrame'), info = document.getElementById('infoMessage'), urlInput = document.getElementById('urlInput');
+  home.style.display = 'none'; frame.classList.remove('visible'); info.classList.remove('visible'); frame.src = 'about:blank';
+
+  if (tab.isHome) {
+    home.style.display = 'flex'; urlInput.value = '';
+    urlInput.placeholder = state.incognito ? '🕵️ Инкогнито Режим' : 'Поиск Google CSE или адрес сайта...';
+    return;
+  }
+  urlInput.value = tab.url || '';
+
+  if (tab.isAbout) {
+    info.classList.add('visible');
+    document.getElementById('infoTitle').textContent = 'NEBULA GOOGLE EDITION';
+    document.getElementById('infoText').innerHTML = 'Снова с поисковым блоком Google CSE.<br><br><b>Тема:</b> ' + state.theme.toUpperCase();
+    return;
+  }
+
+  frame.classList.add('visible');
+  frame.src = tab.url;
+}
+
+function openSite(key) { newTab(key); }
+
+function loadFromInput() {
+  let val = document.getElementById('urlInput').value.trim(); if (!val) return;
+  let finalUrl = '';
+  
+  if (val.startsWith('http://') || val.startsWith('https://')) {
+    finalUrl = val;
+  } else if (val.includes('.') && !val.includes(' ')) {
+    finalUrl = 'https://' + val;
+  } else {
+    finalUrl = 'https://www.google.com/search?q=' + encodeURIComponent(val);
+  }
+
+  const tab = state.tabs[state.activeTab];
+  tab.url = finalUrl; 
+  tab.title = val.split('/')[0];
+  tab.favicon = '🔍'; 
+  tab.isHome = false;
+  
+  renderTabs(); 
+  renderContent();
+}
+
+function goBack() { playSFX(400); try { document.getElementById('browserFrame').contentWindow.history.back(); } catch(e){} }
+function goForward() { playSFX(400); try { document.getElementById('browserFrame').contentWindow.history.forward(); } catch(e){} }
+function reloadPage() { playSFX(500); renderContent(); }
+function goHome() {
+  playSFX(450);
+  const tab = state.tabs[state.activeTab];
+  if (tab) { tab.isHome = true; tab.url = null; tab.title = 'Новая вкладка'; tab.favicon = '🌐'; }
+  renderTabs(); renderContent();
+}
+
+function onUrlFocus() { document.getElementById('urlWrapper').classList.add('focused'); }
+function onUrlBlur() { document.getElementById('urlWrapper').classList.remove('focused'); }
+function clearInput() { document.getElementById('urlInput').value = ''; }
+
+function toggleIncognito() {
+  playSFX(state.incognito ? 300 : 700, 'sawtooth', 0.1);
+  state.incognito = !state.incognito;
+  document.getElementById('topBar').classList.toggle('incognito', state.incognito);
+  const badge = document.getElementById('incognitoBadge');
+  badge.classList.add('show'); setTimeout(() => badge.classList.remove('show'), 2000);
+  renderContent();
+}
+
+function openInNewWindow() {
+  const tab = state.tabs[state.activeTab];
+  if (tab && tab.url) window.open(tab.url, '_blank');
+}
+
+function shareApp() {
+  if (navigator.share) {
+    navigator.share({ title: 'NEBULA BROWSER', text: 'Зацени встроенный Google CSE браузер!', url: window.location.href });
+  } else {
+    alert('Ссылка скопирована!');
+  }
+}
+
+function showMenu() { playSFX(650); document.getElementById('menuOverlay').classList.add('visible'); }
+function hideMenu() { playSFX(350); document.getElementById('menuOverlay').classList.remove('visible'); }
+
+function switchMenuTab(tabName) {
+  playSFX(550);
+  document.querySelectorAll('.menuTabBtn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.menuPage').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('menuPage-' + tabName).classList.add('active');
+}
+
+function setTheme(t) {
+  playSFX(700, 'sine', 0.08);
+  state.theme = t; document.body.dataset.theme = t;
+  document.querySelectorAll('.themeDot').forEach(d => d.classList.toggle('active', d.dataset.theme === t));
+  saveSettings();
+}
+
+function setAnim(a) {
+  playSFX(650, 'sine', 0.08);
+  state.anim = a; document.body.dataset.anim = a;
+  ['particles', 'nebula', 'stars', 'matrix', 'grid', 'waves'].forEach(id => {
+    const el = document.getElementById('anim-' + id);
+    if (el) el.classList.toggle('active', id === a);
+  });
+  saveSettings();
+}
+
+function toggleGlow(val) { state.glow = val; document.body.classList.toggle('no-glow', !val); saveSettings(); }
+function toggleSFX(val) { state.sfx = val; saveSettings(); }
+
+function changeRadius(v) {
+  state.radius = v;
+  document.documentElement.style.setProperty('--radius', v + 'px');
+  document.getElementById('radiusVal').textContent = v + 'px';
+  saveSettings();
+}
+
+function changeFont(fontVal) {
+  state.font = fontVal;
+  document.documentElement.style.setProperty('--font-family', fontVal);
+  saveSettings();
+}
+
+function clearAll() {
+  if (confirm('Очистить все вкладки?')) {
+    state.tabs = []; state.activeTab = 0; newTab();
+  }
+}
+
+newTab();
+</script>
+</body>
+</html>
